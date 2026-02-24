@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+/* Using system font Trebuchet MS */
 
 @layer base {
   :root {
@@ -50,8 +50,8 @@
     --sidebar-border: 40 20% 90%;
     --sidebar-ring: 40 88% 60%;
 
-    --font-display: 'Playfair Display', serif;
-    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'Trebuchet MS', sans-serif;
+    --font-body: 'Trebuchet MS', sans-serif;
   }
 
   .dark {

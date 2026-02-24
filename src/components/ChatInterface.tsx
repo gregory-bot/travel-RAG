@@ -34,6 +34,15 @@ const ChatInterface = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const query = (e as CustomEvent).detail;
+      if (query) handleSend(query);
+    };
+    window.addEventListener("explore-destination", handler);
+    return () => window.removeEventListener("explore-destination", handler);
+  }, []);
+
   const handleSend = async (text?: string) => {
     const query = text || input;
     if (!query.trim()) return;
