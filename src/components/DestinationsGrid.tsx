@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import destMaasaiMara from "@/assets/dest-maasai-mara.jpg";
 import destMountKenya from "@/assets/dest-mount-kenya.jpg";
 import destMombasa from "@/assets/dest-mombasa.jpg";
@@ -17,10 +16,12 @@ const destinations = [
 ];
 
 const DestinationsGrid = () => {
-  const navigate = useNavigate();
 
   const handleExplore = (name: string) => {
-    navigate(`/chat?q=${encodeURIComponent(`Tell me about ${name}`)}`);
+    // Scroll to chat and dispatch a custom event to pre-fill the query
+    const chatSection = document.getElementById("chat");
+    if (chatSection) chatSection.scrollIntoView({ behavior: "smooth" });
+    window.dispatchEvent(new CustomEvent("explore-destination", { detail: `Tell me about ${name}` }));
   };
 
   return (
