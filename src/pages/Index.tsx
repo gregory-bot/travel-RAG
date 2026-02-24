@@ -1,4 +1,5 @@
 import HeroSection from "@/components/HeroSection";
+import ChatInterface from "@/components/ChatInterface";
 import FeaturesSection from "@/components/FeaturesSection";
 import HowItWorks from "@/components/HowItWorks";
 import DestinationsGrid from "@/components/DestinationsGrid";
@@ -11,6 +12,7 @@ const Index = () => {
     <div className="min-h-screen">
       <Navbar />
       <HeroSection />
+      <ChatInterface />
       <FeaturesSection />
       <HowItWorks />
       <DestinationsGrid />

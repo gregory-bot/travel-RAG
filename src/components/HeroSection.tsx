@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import heroVideo1 from "@/assets/hero-video-1.mp4";
 import heroVideo2 from "@/assets/hero-video-2.mp4";
 
@@ -16,7 +15,6 @@ const suggestedQueries = [
 const HeroSection = () => {
   const [activeVideo, setActiveVideo] = useState(0);
   const [query, setQuery] = useState("");
-  const navigate = useNavigate();
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
@@ -26,16 +24,20 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const scrollToChat = (q?: string) => {
+    const chatSection = document.getElementById("chat");
+    if (chatSection) chatSection.scrollIntoView({ behavior: "smooth" });
+  };
+
   const handleSearch = (q?: string) => {
     const searchQuery = q || query;
     if (searchQuery.trim()) {
-      navigate(`/chat?q=${encodeURIComponent(searchQuery.trim())}`);
+      scrollToChat(searchQuery);
     }
   };
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      {/* Video backgrounds */}
       {videos.map((src, i) => (
         <video
           key={i}
@@ -51,10 +53,8 @@ const HeroSection = () => {
         />
       ))}
 
-      {/* Overlay */}
       <div className="absolute inset-0 hero-gradient-overlay" />
 
-      {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
         <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-4 animate-fade-in amber-text-glow">
           Your AI Travel Guide to{" "}
@@ -64,7 +64,6 @@ const HeroSection = () => {
           Ask anything about destinations, accommodations, itineraries, and hidden gems — powered by real tourism data.
         </p>
 
-        {/* Search bar */}
         <div className="w-full max-w-2xl animate-fade-in" style={{ animationDelay: "0.4s" }}>
           <div className="flex items-center bg-background/95 rounded-full shadow-lg border-2 border-primary overflow-hidden amber-glow">
             <Search className="w-5 h-5 text-muted-foreground ml-5 shrink-0" />
@@ -85,12 +84,11 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Suggested queries */}
         <div className="flex flex-wrap justify-center gap-3 mt-6 animate-fade-in" style={{ animationDelay: "0.6s" }}>
           {suggestedQueries.map((sq) => (
             <button
               key={sq.text}
-              onClick={() => handleSearch(sq.text)}
+              onClick={() => scrollToChat(sq.text)}
               className="bg-background/20 hover:bg-background/30 text-primary-foreground border border-primary-foreground/20 rounded-full px-4 py-2 text-sm font-body transition-colors backdrop-blur-sm"
             >
               {sq.emoji} {sq.text}
