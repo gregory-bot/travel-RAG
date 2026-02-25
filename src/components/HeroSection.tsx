@@ -47,23 +47,15 @@ const HeroSection = () => {
       {/* Brush stroke paint divider */}
       <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none" style={{ marginBottom: '-1px' }}>
         <svg
-          viewBox="0 0 1440 80"
+          viewBox="0 0 1440 50"
           preserveAspectRatio="none"
-          className="w-full h-[40px] md:h-[55px] lg:h-[70px] block"
+          className="w-full h-[30px] md:h-[40px] lg:h-[50px] block"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <defs>
-            <filter id="rough-edge" x="-5%" y="-5%" width="110%" height="110%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise" />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="15" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-          </defs>
-          <g filter="url(#rough-edge)">
-            <path
-              d="M-20,80 L-20,35 C60,28 120,40 200,30 C280,20 320,35 440,25 C560,15 580,32 700,22 C820,12 850,28 960,20 C1070,12 1100,26 1200,18 C1300,10 1350,22 1460,16 L1460,80 Z"
-              className="fill-background"
-            />
-          </g>
+          <path
+            d="M0,50 L0,28 C12,26 24,30 48,25 C72,20 96,27 132,22 C168,17 192,24 228,19 C264,14 288,22 324,18 C360,14 384,20 420,16 C456,12 480,19 516,15 C552,11 576,18 612,14 C648,10 672,17 708,13 C744,9 768,16 804,12 C840,8 864,15 900,11 C936,7 960,14 996,10 C1032,6 1056,13 1092,9 C1128,5 1152,12 1188,8 C1224,4 1248,11 1284,7 C1320,3 1356,10 1392,6 C1416,4 1440,8 1440,8 L1440,50 Z"
+            className="fill-background"
+          />
         </svg>
       </div>
     </section>
