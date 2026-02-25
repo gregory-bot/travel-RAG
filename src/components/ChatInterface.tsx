@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Send, Compass, ChevronDown, ChevronUp, FileText, Upload, X, Paperclip } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Send, Compass, ChevronDown, ChevronUp, FileText } from "lucide-react";
 
 interface Source {
   title: string;
@@ -47,11 +47,7 @@ const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Persist messages to localStorage
   useEffect(() => {
@@ -106,46 +102,6 @@ const ChatInterface = () => {
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const validFiles = files.filter((f) => {
-      const ext = f.name.toLowerCase();
-      return ext.endsWith(".pdf") || ext.endsWith(".txt") || ext.endsWith(".docx") || ext.endsWith(".csv") || ext.endsWith(".md");
-    });
-    if (validFiles.length !== files.length) {
-      setUploadStatus("Only PDF, TXT, DOCX, CSV, and MD files are accepted.");
-    }
-    setUploadedFiles((prev) => [...prev, ...validFiles]);
-    if (e.target) e.target.value = "";
-  };
-
-  const removeFile = (index: number) => {
-    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleUploadDocuments = async () => {
-    if (uploadedFiles.length === 0) return;
-    setIsUploading(true);
-    setUploadStatus(null);
-
-    // Replace with actual FastAPI upload endpoint: POST /upload-documents
-    try {
-      // const formData = new FormData();
-      // uploadedFiles.forEach((f) => formData.append("files", f));
-      // const res = await fetch("http://localhost:8000/upload-documents", { method: "POST", body: formData });
-      // const data = await res.json();
-
-      // Simulated response
-      await new Promise((r) => setTimeout(r, 2000));
-      setUploadStatus(`✅ ${uploadedFiles.length} document(s) uploaded and indexed successfully!`);
-      setUploadedFiles([]);
-    } catch {
-      setUploadStatus("❌ Upload failed. Ensure your FastAPI backend is running.");
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   const clearChat = () => {
@@ -271,56 +227,9 @@ const ChatInterface = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Upload area */}
-          {uploadedFiles.length > 0 && (
-            <div className="px-4 py-3 border-t border-border bg-accent/30">
-              <div className="flex flex-wrap gap-2 mb-2">
-                {uploadedFiles.map((f, i) => (
-                  <div key={i} className="flex items-center gap-1 bg-background border border-border rounded-lg px-3 py-1.5 text-xs font-body">
-                    <FileText className="w-3 h-3 text-primary" />
-                    <span className="max-w-[120px] truncate">{f.name}</span>
-                    <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive ml-1">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={handleUploadDocuments}
-                disabled={isUploading}
-                className="bg-primary hover:bg-primary-hover text-primary-foreground rounded-full px-4 py-2 text-xs font-body font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
-              >
-                <Upload className="w-3 h-3" />
-                {isUploading ? "Uploading & Indexing..." : `Upload ${uploadedFiles.length} Document(s) to RAG`}
-              </button>
-            </div>
-          )}
-
-          {uploadStatus && (
-            <div className="px-4 py-2 border-t border-border">
-              <p className="text-xs font-body text-muted-foreground">{uploadStatus}</p>
-            </div>
-          )}
-
           {/* Input area */}
           <div className="border-t border-border bg-muted/30 px-4 py-4">
             <div className="flex items-center gap-3 bg-background rounded-full px-4 border border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <input type="hidden" ref={fileInputRef as any} />
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                multiple
-                accept=".pdf,.txt,.docx,.csv,.md"
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                title="Upload documents to RAG knowledge base"
-                className="text-muted-foreground hover:text-primary transition-colors shrink-0"
-              >
-                <Paperclip className="w-4 h-4" />
-              </button>
               <input
                 type="text"
                 value={input}
@@ -338,7 +247,7 @@ const ChatInterface = () => {
               </button>
             </div>
             <p className="text-center text-[11px] text-muted-foreground mt-2 font-body">
-              Responses are grounded in Kenya tourism documents · <button onClick={() => fileInputRef.current?.click()} className="text-primary hover:underline">Upload documents</button> to expand the knowledge base
+              Responses are grounded in Kenya tourism documents
             </p>
           </div>
         </div>
