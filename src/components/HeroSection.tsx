@@ -43,6 +43,26 @@ const HeroSection = () => {
           Discover destinations, plan itineraries, and explore hidden gems — powered by real tourism data.
         </p>
       </div>
+
+      {/* Brush stroke divider */}
+      <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none" style={{ marginBottom: '-2px' }}>
+        <svg
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
+          className="w-full h-[60px] md:h-[90px] lg:h-[120px] block"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0,120 L0,85 C20,82 40,90 80,78 C120,66 140,88 200,72 C260,56 280,80 340,68 C400,56 420,75 480,65 C540,55 560,78 620,62 C680,46 720,72 780,58 C840,44 860,70 920,60 C980,50 1020,74 1080,56 C1140,38 1160,68 1220,54 C1280,40 1320,65 1380,52 C1410,46 1430,55 1440,50 L1440,120 Z"
+            className="fill-background"
+          />
+          <path
+            d="M0,120 L0,95 C30,92 60,98 120,88 C180,78 210,96 280,82 C350,68 380,90 450,78 C520,66 550,85 620,74 C690,63 730,82 800,70 C870,58 900,78 970,66 C1040,54 1080,76 1150,64 C1220,52 1250,72 1320,62 C1370,55 1410,65 1440,60 L1440,120 Z"
+            className="fill-background"
+            opacity="0.7"
+          />
+        </svg>
+      </div>
     </section>
   );
 };
