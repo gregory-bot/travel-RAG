@@ -49,7 +49,7 @@ const HeroSection = () => {
         <svg
           viewBox="0 0 1440 200"
           preserveAspectRatio="none"
-          className="w-full h-[100px] md:h-[150px] lg:h-[200px] block"
+          className="w-full h-[50px] md:h-[70px] lg:h-[90px] block"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
