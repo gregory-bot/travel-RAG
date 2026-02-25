@@ -47,15 +47,30 @@ const HeroSection = () => {
       {/* Brush stroke paint divider */}
       <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none" style={{ marginBottom: '-1px' }}>
         <svg
-          viewBox="0 0 1440 50"
+          viewBox="0 0 1440 200"
           preserveAspectRatio="none"
-          className="w-full h-[30px] md:h-[40px] lg:h-[50px] block"
+          className="w-full h-[100px] md:h-[150px] lg:h-[200px] block"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            d="M0,50 L0,28 C12,26 24,30 48,25 C72,20 96,27 132,22 C168,17 192,24 228,19 C264,14 288,22 324,18 C360,14 384,20 420,16 C456,12 480,19 516,15 C552,11 576,18 612,14 C648,10 672,17 708,13 C744,9 768,16 804,12 C840,8 864,15 900,11 C936,7 960,14 996,10 C1032,6 1056,13 1092,9 C1128,5 1152,12 1188,8 C1224,4 1248,11 1284,7 C1320,3 1356,10 1392,6 C1416,4 1440,8 1440,8 L1440,50 Z"
-            className="fill-background"
-          />
+          <defs>
+            <filter id="rough-edge" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="25" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </defs>
+          <g filter="url(#rough-edge)">
+            <path
+              d="M-20,200 L-20,110 C60,95 120,115 200,90 C280,65 320,100 440,75 C560,50 580,95 700,70 C820,45 850,85 960,65 C1070,45 1100,80 1200,60 C1300,40 1350,70 1460,55 L1460,200 Z"
+              className="fill-background"
+            />
+          </g>
+          <g filter="url(#rough-edge)">
+            <path
+              d="M-20,200 L-20,140 C80,130 150,145 260,125 C370,105 400,135 520,115 C640,95 680,125 800,108 C920,90 960,118 1080,100 C1200,82 1240,108 1360,92 C1400,86 1440,95 1460,90 L1460,200 Z"
+              className="fill-background"
+              opacity="0.6"
+            />
+          </g>
         </svg>
       </div>
     </section>
