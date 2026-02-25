@@ -44,23 +44,33 @@ const HeroSection = () => {
         </p>
       </div>
 
-      {/* Brush stroke divider */}
-      <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none" style={{ marginBottom: '-2px' }}>
+      {/* Brush stroke paint divider */}
+      <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none" style={{ marginBottom: '-1px' }}>
         <svg
-          viewBox="0 0 1440 120"
+          viewBox="0 0 1440 200"
           preserveAspectRatio="none"
-          className="w-full h-[60px] md:h-[90px] lg:h-[120px] block"
+          className="w-full h-[100px] md:h-[150px] lg:h-[200px] block"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            d="M0,120 L0,85 C20,82 40,90 80,78 C120,66 140,88 200,72 C260,56 280,80 340,68 C400,56 420,75 480,65 C540,55 560,78 620,62 C680,46 720,72 780,58 C840,44 860,70 920,60 C980,50 1020,74 1080,56 C1140,38 1160,68 1220,54 C1280,40 1320,65 1380,52 C1410,46 1430,55 1440,50 L1440,120 Z"
-            className="fill-background"
-          />
-          <path
-            d="M0,120 L0,95 C30,92 60,98 120,88 C180,78 210,96 280,82 C350,68 380,90 450,78 C520,66 550,85 620,74 C690,63 730,82 800,70 C870,58 900,78 970,66 C1040,54 1080,76 1150,64 C1220,52 1250,72 1320,62 C1370,55 1410,65 1440,60 L1440,120 Z"
-            className="fill-background"
-            opacity="0.7"
-          />
+          <defs>
+            <filter id="rough-edge" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="25" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </defs>
+          <g filter="url(#rough-edge)">
+            <path
+              d="M-20,200 L-20,110 C60,95 120,115 200,90 C280,65 320,100 440,75 C560,50 580,95 700,70 C820,45 850,85 960,65 C1070,45 1100,80 1200,60 C1300,40 1350,70 1460,55 L1460,200 Z"
+              className="fill-background"
+            />
+          </g>
+          <g filter="url(#rough-edge)">
+            <path
+              d="M-20,200 L-20,140 C80,130 150,145 260,125 C370,105 400,135 520,115 C640,95 680,125 800,108 C920,90 960,118 1080,100 C1200,82 1240,108 1360,92 C1400,86 1440,95 1460,90 L1460,200 Z"
+              className="fill-background"
+              opacity="0.6"
+            />
+          </g>
         </svg>
       </div>
     </section>
