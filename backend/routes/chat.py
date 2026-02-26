@@ -128,7 +128,7 @@ AVAILABLE INFORMATION:
 {context if context else "You can use your general knowledge about Kenya tourism"}
 
 USER'S REQUEST:
-\"{user_query}\"
+"{user_query}"
 
 YOUR TASK:
 Think through the user's needs as an AI agent would:
@@ -145,8 +145,9 @@ GUIDELINES:
 - If budget-conscious, suggest affordable alternatives
 - Offer a complete vision (where to go, what to do, duration, tips)
 - Ask follow-up questions if needed to refine recommendations
-- Don't say \"I couldn't find...\" - instead use your knowledge to help
+- Don't say "I couldn't find..." - instead use your knowledge to help
 - Think creatively about what would make their trip amazing
+- Respond with a complete, detailed itinerary or recommendation. Do not just give an introduction—provide a full answer.
 
 Respond naturally as an intelligent travel agent would:"""
     return prompt

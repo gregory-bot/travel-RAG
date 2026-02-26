@@ -56,9 +56,9 @@ def generate_gemini_response(prompt: str):
         model = genai.GenerativeModel(
             'gemini-2.5-flash',
             generation_config={
-                'temperature': 0.8,  # More creative and conversational
-                'top_p': 0.95,
-                'max_output_tokens': 500,
+                'temperature': 0.85,  # More creative and conversational
+                'top_p': 0.98,
+                'max_output_tokens': 1200,
             }
         )
 
