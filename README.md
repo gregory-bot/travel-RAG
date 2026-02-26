@@ -48,22 +48,44 @@ The platform consists of:
 - Accepts user queries and displays answers
 - Optionally shows retrieved sources
 
+
 ## Installation & Usage
 1. **Clone the repository:**
 	 ```sh
 	 git clone <repo-url>
 	 cd travel-RAG
 	 ```
+
 2. **Backend setup:**
 	 - Install Python dependencies:
 		 ```sh
 		 cd backend
 		 pip install -r requirements.txt
 		 ```
+	 - Create a `.env` file in the `backend/` directory with the following structure:
+		 ```env
+		 # Database settings
+		 DB_HOST=your_postgres_host
+		 DB_PORT=your_postgres_port
+		 DB_NAME=your_db_name
+		 DB_USER=your_db_user
+		 DB_PASSWORD=your_db_password
+
+		 # Embedding and LLM settings
+		 EMBEDDING_DIM=384
+		 EMBEDDING_MODEL=xenova
+		 LLM_MODEL=gemini
+
+		 # API Keys
+		 OPENAI_API_KEY=your_openai_key
+		 GEMINI_API_KEY=your_gemini_key
+		 ```
+	 - Ensure your PostgreSQL database is running and accessible. The backend uses PostgreSQL with the pgvector extension for vector storage.
 	 - Start the FastAPI server:
 		 ```sh
 		 uvicorn main:app
 		 ```
+
 3. **Frontend setup:**
 	 - Install Node.js dependencies:
 		 ```sh
@@ -73,8 +95,48 @@ The platform consists of:
 		 ```sh
 		 npm run dev
 		 ```
+
 4. **Access the platform:**
-	 - Open your browser at `http://localhost:5173` (or port shown in the terminal)
+	 - Open your browser at `http://localhost:5173` (or the port shown in the terminal)
+
+## Deployment
+
+### Frontend (Netlify)
+1. Push your code to GitHub.
+2. Go to [Netlify](https://www.netlify.com/) and create a new site from GitHub.
+3. Select your repository and follow the prompts (default build command: `npm run build`, publish directory: `dist`).
+4. Deploy the site. Netlify will provide a public URL.
+
+### Backend (Render)
+1. Push your backend code to GitHub.
+2. Go to [Render](https://render.com/) and create a new Web Service.
+3. Connect your GitHub repository and select the backend folder.
+4. Set the build command to `pip install -r requirements.txt` and the start command to `uvicorn main:app --host 0.0.0.0 --port 10000` (or your preferred port).
+5. Add your environment variables in the Render dashboard (copy from your `.env` file, do not commit secrets).
+6. Deploy the service. Render will provide a public API URL.
+
+**Note:**
+- Ensure CORS is configured in your FastAPI backend to allow requests from your Netlify frontend domain.
+- Update the frontend API URLs to point to your deployed backend.
+
+## Example .env file structure
+```env
+# Database settings
+DB_HOST=your_postgres_host
+DB_PORT=your_postgres_port
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+
+# Embedding and LLM settings
+EMBEDDING_DIM=384
+EMBEDDING_MODEL=xenova
+LLM_MODEL=gemini
+
+# API Keys
+OPENAI_API_KEY=your_openai_key
+GEMINI_API_KEY=your_gemini_key
+```
 
 ## Example Queries
 - Best wildlife destinations in Kenya
