@@ -5,46 +5,17 @@ load_dotenv()
 
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini")
 
-def generate_response(query: str, retrieved_docs: list, is_conversational: bool = False):
-    """Generate a response with better conversational abilities"""
-    
-    context = "\n\n".join([doc['text'] for doc in retrieved_docs]) if retrieved_docs else ""
-    print(f"[LLM] User query: {query}")
-    print(f"[LLM] Retrieved context: {context[:500]}{'...' if len(context) > 500 else ''}")
-    
-    if is_conversational:
-        # Confident, scenario-based agent prompt
-        prompt = f"""You are an expert Kenya travel agent. Always respond confidently with a helpful travel plan, itinerary, or recommendations. Never repeat the user's question or apologize for missing info. Use the context below if available, otherwise use your knowledge.
-
-Context about Kenya (use if relevant):
-{context if context else ""}
-
-User message: "{query}"
-
-Guidelines:
-- Respond as a professional travel agent.
-- Give a direct answer, sample itinerary, or recommendations.
-- Never say you don't know or couldn't find info.
-- Never repeat the user's question.
-- Be warm, engaging, and helpful.
-- If context is available, weave it in naturally.
-
-Respond with a scenario or plan, not fallback text."""
-    else:
-        # Confident, scenario-based answer
-        prompt = f"""You are a Kenya travel agent. Answer the user's question using the context below. Always provide a direct, helpful plan or recommendations. Never repeat the user's question or apologize for missing info.
-
-Context:
-{context}
-
-Question: {query}
-
-Answer (be informative, scenario-based, and concise):"""
-
+def generate_response(agent_prompt: str, retrieved_docs: list, is_conversational: bool = True):
+    """
+    Generate a response using an agentic approach.
+    The prompt already contains all context and instructions.
+    """
+    # For agentic approach, always use conversational mode
+    # The prompt itself contains all the intelligence
     if LLM_MODEL == "openai":
-        return generate_openai_response(prompt)
+        return generate_openai_response(agent_prompt)
     elif LLM_MODEL == "gemini":
-        return generate_gemini_response(prompt)
+        return generate_gemini_response(agent_prompt)
     else:
         return "Error: Unknown LLM model configured"
 
