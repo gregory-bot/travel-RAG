@@ -1,19 +1,76 @@
-import { useState } from "react";
+
+import { useState, useRef } from "react";
 import { Phone, X, Mic, MicOff } from "lucide-react";
 
 const VoiceCallFAB = () => {
+
   const [isOpen, setIsOpen] = useState(false);
   const [isCallActive, setIsCallActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string>("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
-  const handleStartCall = () => {
+  // Start recording and send audio to backend
+  const handleStartCall = async () => {
     setIsCallActive(true);
-    // TODO: Integrate with Gemini voice API
+    setStatusMsg("Say something! Recording...");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new window.MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = async () => {
+        setStatusMsg("Processing...");
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        // Send audio to backend
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'voice.webm');
+        try {
+          const resp = await fetch('https://travel-rag-la.onrender.com/voice-call', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await resp.json();
+          setStatusMsg(data.message || "Response received.");
+          // TODO: If backend returns TTS audio, play it here
+          // if (data.audio_url) {
+          //   const audio = new Audio(data.audio_url);
+          //   audioPlayerRef.current = audio;
+          //   audio.play();
+          // }
+        } catch (err) {
+          setStatusMsg("Error sending audio. Try again later.");
+        }
+      };
+      mediaRecorder.start();
+      setIsRecording(true);
+      // Automatically stop after 10 seconds for demo
+      setTimeout(() => {
+        if (mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+          setIsRecording(false);
+        }
+      }, 10000);
+    } catch (err) {
+      setStatusMsg("Microphone access denied or not available.");
+    }
   };
 
   const handleEndCall = () => {
     setIsCallActive(false);
     setIsOpen(false);
+    setStatusMsg("");
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   return (
@@ -51,8 +108,7 @@ const VoiceCallFAB = () => {
             {isCallActive ? (
               <>
                 <p className="text-foreground font-display font-semibold mb-1">Connected</p>
-                <p className="text-muted-foreground text-xs font-body mb-6">AI Travel Guide • Speaking...</p>
-
+                <p className="text-muted-foreground text-xs font-body mb-6">{statusMsg || "AI Travel Guide • Listening..."}</p>
                 {/* Call controls */}
                 <div className="flex gap-4">
                   <button
@@ -70,6 +126,8 @@ const VoiceCallFAB = () => {
                     <Phone className="w-5 h-5 rotate-[135deg]" />
                   </button>
                 </div>
+                {/* Optionally, play TTS audio here */}
+                <audio ref={audioPlayerRef} hidden />
               </>
             ) : (
               <>

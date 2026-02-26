@@ -9,6 +9,8 @@ def generate_response(query: str, retrieved_docs: list, is_conversational: bool 
     """Generate a response with better conversational abilities"""
     
     context = "\n\n".join([doc['text'] for doc in retrieved_docs]) if retrieved_docs else ""
+    print(f"[LLM] User query: {query}")
+    print(f"[LLM] Retrieved context: {context[:500]}{'...' if len(context) > 500 else ''}")
     
     if is_conversational:
         # More natural, conversational prompt
@@ -150,8 +152,9 @@ def generate_no_results_response(query: str):
     """Generate empathetic response when no docs found"""
     import random
     responses = [
-        f"Hmm, I couldn't find specific info about '{query}' in my documents, but feel free to ask about popular Kenya destinations like Masai Mara, the Rift Valley, or coastal areas!",
-        f"I don't have specific information about that right now. Try asking about Kenya's main attractions - wildlife, beaches, mountains, or cultural sites!",
-        f"That's an interesting question about '{query}'! I don't have that exact info, but I'd love to help with Kenya travel planning in other ways.",
+        f"I couldn't find specific info about '{query}', but here are some suggestions: ",
+        "- For wildlife: Visit Masai Mara, Amboseli, or Tsavo parks.\n- For family trips: Try Nairobi National Park, Giraffe Centre, or Mombasa beaches.\n- For culture: Explore Lamu, Bomas of Kenya, or Karen Blixen Museum.\n- For adventure: Hike Mount Kenya or visit Hell's Gate National Park.\nIf you want a custom itinerary, just tell me your interests or travel dates!",
+        f"Sorry, I don't have exact info for '{query}', but I can help with Kenya's top destinations, family-friendly activities, or travel tips. Let me know what you need!",
+        f"That's an interesting question about '{query}'! While I don't have that exact info, I can suggest popular Kenya travel spots, wildlife safaris, or family activities. Want ideas?",
     ]
-    return random.choice(responses)
+    return "\n".join(responses[:2])
