@@ -49,7 +49,7 @@ const Admin = () => {
     const handleIngestTourismData = async () => {
       setIngestStatus("Processing...");
       try {
-        const res = await fetch(`${location.protocol}//localhost:8000/documents/ingest-tourism-data`, {
+        const res = await fetch(`https://travel-rag-la.onrender.com/documents/ingest-tourism-data`, {
           method: "POST"
         });
         const data = await res.json();
@@ -101,7 +101,7 @@ const Admin = () => {
         // optional: send metadata (empty here)
         form.append('metadata', JSON.stringify({}));
 
-        const res = await fetch(`${location.protocol}//localhost:8000/documents/upload`, {
+        const res = await fetch(`https://travel-rag-la.onrender.com/documents/upload`, {
           method: 'POST',
           body: form,
         });
@@ -122,7 +122,7 @@ const Admin = () => {
         // poll progress
         const poll = setInterval(async () => {
           try {
-            const p = await fetch(`${location.protocol}//localhost:8000/documents/progress/${uploadId}`);
+            const p = await fetch(`https://travel-rag-la.onrender.com/documents/progress/${uploadId}`);
             if (!p.ok) return;
             const pj = await p.json();
             // update UI percent for all newDocs

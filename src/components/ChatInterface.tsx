@@ -126,7 +126,7 @@ const ChatInterface = () => {
 
     // Call FastAPI backend /chat endpoint
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("https://travel-rag-la.onrender.com/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),

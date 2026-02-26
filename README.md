@@ -1,73 +1,95 @@
-# Welcome to your Lovable project
 
-## Project info
+# Travel and Tourism RAG System
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Project Overview
+This project implements a Retrieval-Augmented Generation (RAG) system for the travel and tourism domain, designed to answer user questions using a custom-built tourism knowledge base. The system retrieves relevant travel information from curated data sources and generates grounded responses using a Large Language Model (LLM), strictly based on retrieved documents rather than general model knowledge.
 
-## How can I edit this code?
+## Objectives
+- Collect and clean real-world tourism data from reputable sources
+- Structure and chunk textual information for efficient retrieval
+- Generate embeddings using a local embedding model (Xenova)
+- Store embeddings in a vector database (postgreSQL pgvector)
+- Implement semantic retrieval and metadata filtering
+- Integrate an LLM for grounded response generation
+- Provide a React frontend for user interaction
 
-There are several ways of editing your application.
+## Data Sources
+such as:
+- Kenya Tourism Board ([magicalkenya.com](https://magicalkenya.com/))
+- National Tourism Service ([tourkenya.go.ke](https://tourkenya.go.ke/))
+- Tourism Research Institute ([tri.go.ke](https://tri.go.ke/))
+- Wikivoyage ([wikivoyage.org](https://wikivoyage.org/))
 
-**Use Lovable**
+Collected data includes information on destinations like Maasai Mara, Mount Kenya, and Mombasa. The dataset consists of at least 50–200 documents or 10,000+ words of cleaned text.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Technical Architecture
+The platform consists of:
+- **Backend (FastAPI, Python):** Handles data ingestion, embedding generation (using Xenova), vector storage, semantic retrieval, and LLM-based response generation. Embeddings and metadata are stored locally for efficient retrieval.
+- **Frontend (React, typescript):** Provides a user interface for submitting queries and viewing grounded answers, with optional display of retrieved sources.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Data Processing
+- Cleans and normalizes text,
+- Chunks documents (300–500 tokens)
+- Stores metadata (location, category, price range, season, activities)
 
-**Use your preferred IDE**
+### Embeddings & Vector Storage
+- Uses a local embedding model (Xenova)
+- Stores embeddings and metadata in a local vector database (pgvector db )
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Retrieval Pipeline
+1. Accepts user question from frontend
+2. Converts question to embedding
+3. Retrieves top 3–5 relevant documents
+4. Injects retrieved context into a prompt
+5. Generates grounded response using LLM, restricted to retrieved context
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### User Interface
+- Built with React (see `src/`)
+- Accepts user queries and displays answers
+- Optionally shows retrieved sources
 
-Follow these steps:
+## Installation & Usage
+1. **Clone the repository:**
+	 ```sh
+	 git clone <repo-url>
+	 cd travel-RAG
+	 ```
+2. **Backend setup:**
+	 - Install Python dependencies:
+		 ```sh
+		 cd backend
+		 pip install -r requirements.txt
+		 ```
+	 - Start the FastAPI server:
+		 ```sh
+		 uvicorn main:app
+		 ```
+3. **Frontend setup:**
+	 - Install Node.js dependencies:
+		 ```sh
+		 npm install
+		 ```
+	 - Start the React development server:
+		 ```sh
+		 npm run dev
+		 ```
+4. **Access the platform:**
+	 - Open your browser at `http://localhost:5173` (or port shown in the terminal)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Example Queries
+- Best wildlife destinations in Kenya
+- 3-day itinerary in Mombasa
+- Best time to visit Mount Kenya
+- Budget-friendly hotels near Maasai Mara
+- Family-friendly coastal activities
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+All answers are grounded in retrieved documents.
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Repository Structure
+- `backend/` — FastAPI backend, data processing, embeddings, retrieval, LLM integration
+- `src/` — React frontend, user interface components
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## License
+See LICENSE file for details.
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## by gregory
