@@ -44,6 +44,25 @@ const getFileType = (name: string): string => {
 };
 
 const Admin = () => {
+    const [ingestStatus, setIngestStatus] = useState<string | null>(null);
+
+    const handleIngestTourismData = async () => {
+      setIngestStatus("Processing...");
+      try {
+        const res = await fetch(`${location.protocol}//localhost:8000/documents/ingest-tourism-data`, {
+          method: "POST"
+        });
+        const data = await res.json();
+        if (res.ok && data.message) {
+          setIngestStatus("Success: " + data.message);
+          // Optionally refresh document list here
+        } else {
+          setIngestStatus("Error: " + (data.error || "Unknown error"));
+        }
+      } catch (e) {
+        setIngestStatus("Error: " + e);
+      }
+    };
   const [documents, setDocuments] = useState<Document[]>(loadDocuments);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -74,25 +93,78 @@ const Admin = () => {
     const updated = [...documents, ...newDocs];
     persist(updated);
 
-    // Simulate processing — replace with actual POST /upload-documents
-    newDocs.forEach((doc) => {
-      const delay = 2000 + Math.random() * 3000;
-      setTimeout(() => {
+    // Upload files to backend and poll progress
+    (async () => {
+      try {
+        const form = new FormData();
+        files.forEach((f) => form.append('files', f));
+        // optional: send metadata (empty here)
+        form.append('metadata', JSON.stringify({}));
+
+        const res = await fetch(`${location.protocol}//localhost:8000/documents/upload`, {
+          method: 'POST',
+          body: form,
+        });
+
+        if (!res.ok) {
+          // mark all as error
+          setDocuments((prev) => {
+            const next = prev.map((d) => (newDocs.some(nd => nd.id === d.id) ? { ...d, status: 'error' } : d));
+            saveDocuments(next);
+            return next;
+          });
+          return;
+        }
+
+        const data = await res.json();
+        const uploadId = data.upload_id;
+
+        // poll progress
+        const poll = setInterval(async () => {
+          try {
+            const p = await fetch(`${location.protocol}//localhost:8000/documents/progress/${uploadId}`);
+            if (!p.ok) return;
+            const pj = await p.json();
+            // update UI percent for all newDocs
+            setDocuments((prev) => {
+              // If error message from backend, show it in status
+              if (pj.status === 'completed' && pj.message && pj.percent < 100) {
+                return prev.map((d) => (newDocs.some(nd => nd.id === d.id) ? { ...d, status: 'error', error: pj.message } : d));
+              }
+              const next = prev.map((d) => (newDocs.some(nd => nd.id === d.id) ? { ...d, status: 'processing' } : d));
+              saveDocuments(next);
+              return next;
+            });
+
+            if (pj.percent >= 100 || pj.status === 'completed') {
+              clearInterval(poll);
+              // fetch stored chunks to update chunk counts
+              const listRes = await fetch(`${location.protocol}//${location.host}/documents?limit=200`);
+              const list = await listRes.json();
+              setDocuments((prev) => {
+                const next = prev.map((d) => {
+                  const matches = list.filter((it: any) => it.source === d.fileName);
+                  if (matches.length > 0) {
+                    return { ...d, status: 'indexed', chunks: matches.length };
+                  }
+                  return d;
+                });
+                saveDocuments(next);
+                return next;
+              });
+            }
+          } catch (e) {
+            // ignore polling errors
+          }
+        }, 1000);
+      } catch (e) {
         setDocuments((prev) => {
-          const next = prev.map((d) =>
-            d.id === doc.id
-              ? {
-                  ...d,
-                  status: (Math.random() > 0.2 ? "indexed" : "error") as "indexed" | "error",
-                  chunks: Math.random() > 0.2 ? Math.floor(Math.random() * 500) + 10 : 0,
-                }
-              : d
-          );
+          const next = prev.map((d) => (newDocs.some(nd => nd.id === d.id) ? { ...d, status: 'error' } : d));
           saveDocuments(next);
           return next;
         });
-      }, delay);
-    });
+      }
+    })();
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,6 +261,18 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+                {/* Tourism Data Ingestion Button */}
+                <div className="mb-6 flex items-center gap-4">
+                  <button
+                    onClick={handleIngestTourismData}
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-6 py-2 font-medium transition-colors"
+                  >
+                    Ingest Sample Tourism Data
+                  </button>
+                  {ingestStatus && (
+                    <span className="text-sm text-muted-foreground">{ingestStatus}</span>
+                  )}
+                </div>
         {/* Upload zone */}
         <div
           onDrop={handleDrop}

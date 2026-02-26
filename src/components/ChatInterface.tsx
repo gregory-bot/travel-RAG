@@ -14,15 +14,15 @@ interface Message {
   sources?: Source[];
 }
 
-const STORAGE_KEY = "travel-kenya-chat-messages";
+const STORAGE_KEY = "travel-kenya";
 
 const categoryChips = [
-  { emoji: "🦁", label: "Wildlife" },
-  { emoji: "🏖️", label: "Beaches" },
-  { emoji: "🏔️", label: "Mountains" },
-  { emoji: "🏨", label: "Accommodation" },
-  { emoji: "🗺️", label: "Itineraries" },
-  { emoji: "💰", label: "Budget" },
+  { label: "Wildlife" },
+  { label: "Beaches" },
+  { label: "Mountains" },
+  { label: "Accommodation" },
+  { label: "Itineraries" },
+  { label: "Budget" },
 ];
 
 const loadMessages = (): Message[] => {
@@ -48,15 +48,59 @@ const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  // Remove any hash from URL on mount (prevents scroll to #chat)
+  useEffect(() => {
+    if (window.location.hash === "#chat") {
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
 
   // Persist messages to localStorage
   useEffect(() => {
     saveMessages(messages);
   }, [messages]);
 
+  // Only scroll to bottom WITHIN THE CHAT CONTAINER (not the page)
+  const prevMessagesRef = useRef<Message[]>([]);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+    // Only scroll if a new message was added and we should auto-scroll
+    if (
+      prevMessagesRef.current.length < messages.length &&
+      (messages[messages.length - 1]?.role === "user" || messages[messages.length - 1]?.role === "ai") &&
+      isAtBottom &&
+      chatContainerRef.current
+    ) {
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          // Scroll the container itself, not the page
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      }, 0);
+    }
+    prevMessagesRef.current = messages;
+  }, [messages, isAtBottom]);
+
+  // Track if user is at the bottom of the chat
+  useEffect(() => {
+    const chatDiv = chatContainerRef.current;
+    if (!chatDiv) return;
+    
+    const handleScroll = () => {
+      const threshold = 60; // px from bottom to still count as "at bottom"
+      const atBottom = chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight < threshold;
+      setIsAtBottom(atBottom);
+    };
+    
+    chatDiv.addEventListener("scroll", handleScroll);
+    // Set initial state
+    handleScroll();
+    
+    return () => chatDiv.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -80,20 +124,30 @@ const ChatInterface = () => {
     setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
 
-    // Simulate API call — replace with actual FastAPI backend call
-    setTimeout(() => {
+    // Call FastAPI backend /chat endpoint
+    try {
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      const data = await response.json();
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "ai",
-        content: `Based on our tourism database, here's what I found about "${query.trim()}":\n\nThis is a demo response. Connect your FastAPI backend at POST /chat to get real RAG-powered answers grounded in Kenyan tourism documents from Magical Kenya, Wikivoyage, and other official sources.`,
-        sources: [
-          { title: "Magical Kenya - Official Guide", preview: "Kenya offers a diverse range of wildlife experiences...", relevance: "High" },
-          { title: "Wikivoyage - Kenya Travel", preview: "The country is known for its spectacular natural scenery...", relevance: "Medium" },
-        ],
+        content: data.answer,
+        sources: data.sources?.map((src: string) => ({ title: src, preview: "", relevance: "" })) || [],
       };
       setMessages((prev) => [...prev, aiMsg]);
-      setIsTyping(false);
-    }, 1500);
+    } catch (err) {
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "ai",
+        content: "try again later.",
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    }
+    setIsTyping(false);
   };
 
   const toggleSources = (id: string) => {
@@ -112,14 +166,11 @@ const ChatInterface = () => {
   const isEmpty = messages.length === 0;
 
   return (
-    <section className="py-16 bg-background" id="chat">
+    <section id="chat-section" className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-center text-foreground mb-2">
-          Ask Our <span className="text-primary">AI Travel Guide</span>
+          travel guide
         </h2>
-        <p className="text-muted-foreground text-center max-w-xl mx-auto mb-8 font-body">
-          Get answers grounded in real tourism data from official Kenyan sources.
-        </p>
 
         <div className="max-w-3xl mx-auto bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
           {/* Header with clear chat */}
@@ -130,18 +181,24 @@ const ChatInterface = () => {
               </span>
               <button
                 onClick={clearChat}
-                className="text-xs text-destructive hover:underline font-body"
+                className="text-xs text-destructive hover:underline font-body transition-colors"
               >
                 Clear Chat
               </button>
             </div>
           )}
 
-          {/* Messages area */}
-          <div className="h-[450px] overflow-y-auto px-4 py-6">
+          {/* Messages area - ISOLATED SCROLL CONTAINER */}
+          <div 
+            ref={chatContainerRef} 
+            className="h-[450px] overflow-y-auto px-4 py-6"
+            style={{
+              scrollBehavior: 'smooth',
+              overflowAnchor: 'auto', // Allow browser to manage scroll anchoring
+            }}
+          >
             {isEmpty && (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <Compass className="w-14 h-14 text-primary mb-4" />
                 <h3 className="font-display text-xl font-bold text-foreground mb-2">
                   Ask About Kenya
                 </h3>
@@ -187,7 +244,6 @@ const ChatInterface = () => {
                           onClick={() => toggleSources(msg.id)}
                           className="flex items-center gap-1 text-xs text-primary hover:text-primary-hover font-medium font-body transition-colors"
                         >
-                          <FileText className="w-3 h-3" />
                           View Sources ({msg.sources.length})
                           {expandedSources.has(msg.id) ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                         </button>
@@ -224,6 +280,7 @@ const ChatInterface = () => {
               </div>
             )}
 
+            {/* This ref marks the end of messages for scroll positioning */}
             <div ref={messagesEndRef} />
           </div>
 
@@ -246,9 +303,6 @@ const ChatInterface = () => {
                 <Send className="w-4 h-4 text-primary-foreground" />
               </button>
             </div>
-            <p className="text-center text-[11px] text-muted-foreground mt-2 font-body">
-              Responses are grounded in Kenya tourism documents
-            </p>
           </div>
         </div>
       </div>
