@@ -13,35 +13,33 @@ def generate_response(query: str, retrieved_docs: list, is_conversational: bool 
     print(f"[LLM] Retrieved context: {context[:500]}{'...' if len(context) > 500 else ''}")
     
     if is_conversational:
-        # More natural, conversational prompt
-        prompt = f"""You are a friendly, knowledgeable Kenya tourism expert assistant. You engage naturally in conversation, not like a bot.
+        # Confident, scenario-based agent prompt
+        prompt = f"""You are an expert Kenya travel agent. Always respond confidently with a helpful travel plan, itinerary, or recommendations. Never repeat the user's question or apologize for missing info. Use the context below if available, otherwise use your knowledge.
 
 Context about Kenya (use if relevant):
-{context if context else "No specific context available, but you can use your general knowledge about Kenya tourism."}
+{context if context else ""}
 
 User message: "{query}"
 
 Guidelines:
-- Respond naturally and conversationally, not formally
-- Be warm and engaging, like a friend helping with travel plans
-- Keep responses concise but informative
-- If they ask questions, answer them. If they comment, respond naturally
-- Use humor when appropriate
-- Don't constantly say "according to the documents" - just integrate info naturally
-- Feel free to suggest related topics or ask follow-up questions
-- If context is available, weave it in naturally
+- Respond as a professional travel agent.
+- Give a direct answer, sample itinerary, or recommendations.
+- Never say you don't know or couldn't find info.
+- Never repeat the user's question.
+- Be warm, engaging, and helpful.
+- If context is available, weave it in naturally.
 
-Respond in a natural, human way:"""
+Respond with a scenario or plan, not fallback text."""
     else:
-        # Traditional question-answer prompt
-        prompt = f"""You are a Kenya tourism expert assistant. Answer the user's question using the provided context below. Keep your answer short, clear, and helpful.
+        # Confident, scenario-based answer
+        prompt = f"""You are a Kenya travel agent. Answer the user's question using the context below. Always provide a direct, helpful plan or recommendations. Never repeat the user's question or apologize for missing info.
 
 Context:
 {context}
 
 Question: {query}
 
-Answer (be informative but concise):"""
+Answer (be informative, scenario-based, and concise):"""
 
     if LLM_MODEL == "openai":
         return generate_openai_response(prompt)
@@ -152,9 +150,7 @@ def generate_no_results_response(query: str):
     """Generate empathetic response when no docs found"""
     import random
     responses = [
-        f"I couldn't find specific info about '{query}', but here are some suggestions: ",
-        "- For wildlife: Visit Masai Mara, Amboseli, or Tsavo parks.\n- For family trips: Try Nairobi National Park, Giraffe Centre, or Mombasa beaches.\n- For culture: Explore Lamu, Bomas of Kenya, or Karen Blixen Museum.\n- For adventure: Hike Mount Kenya or visit Hell's Gate National Park.\nIf you want a custom itinerary, just tell me your interests or travel dates!",
-        f"Sorry, I don't have exact info for '{query}', but I can help with Kenya's top destinations, family-friendly activities, or travel tips. Let me know what you need!",
-        f"That's an interesting question about '{query}'! While I don't have that exact info, I can suggest popular Kenya travel spots, wildlife safaris, or family activities. Want ideas?",
+        "Here's a great travel plan for your family holiday in Kenya:",
+        "Day 1: Start at Nairobi National Park for a close-up wildlife experience.\nDay 2: Visit the Giraffe Centre and David Sheldrick Elephant Orphanage.\nDay 3: Head to Masai Mara for a safari adventure—kids will love seeing lions, elephants, and zebras.\nDay 4: Explore Lake Naivasha for boat rides and hippo spotting.\nDay 5: Relax at Mombasa beaches or try snorkeling.\nFor more ideas or a custom itinerary, just tell me your interests or travel dates!",
     ]
-    return "\n".join(responses[:2])
+    return "\n".join(responses)
